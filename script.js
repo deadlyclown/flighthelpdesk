@@ -1,6 +1,6 @@
 /**
  * Flight Help Desk - Enhanced JavaScript
- * Premium animations, carousel, and interactions
+ * Weather animations, carousel, and interactions
  */
 
 (function() {
@@ -14,16 +14,16 @@
     const mobileMenu = document.getElementById('mobileMenu');
     const mobileMenuLinks = document.querySelectorAll('.mobile-menu__link');
     const floatingBtn = document.getElementById('floatingBtn');
-    const airplane = document.getElementById('airplane');
-    const lightning = document.getElementById('lightning');
-    const rain = document.getElementById('rain');
     const animatedElements = document.querySelectorAll('[data-animate]');
-    const clouds = document.querySelectorAll('.cloud');
+    const rain = document.getElementById('rain');
+    const lightning = document.getElementById('lightning');
+    const bolt1 = document.getElementById('bolt1');
+    const bolt2 = document.getElementById('bolt2');
     const reviewsTrack = document.getElementById('reviewsTrack');
     const reviewsNav = document.getElementById('reviewsNav');
 
     // ============================================
-    // Navbar Scroll Effect - Enhanced
+    // Navbar Scroll Effect
     // ============================================
     function handleNavbarScroll() {
         if (window.scrollY > 50) {
@@ -63,50 +63,12 @@
     }
 
     // ============================================
-    // Parallax Cloud Animation
-    // ============================================
-    let ticking = false;
-
-    function updateParallax() {
-        const scrollY = window.scrollY;
-        const windowHeight = window.innerHeight;
-        const docHeight = document.documentElement.scrollHeight;
-        const scrollPercent = scrollY / (docHeight - windowHeight);
-
-        // Animate airplane - diagonal movement
-        if (airplane) {
-            const startX = -120;
-            const endX = window.innerWidth + 120;
-            const startY = 12; // percentage
-            const endY = 75; // percentage
-            
-            // Calculate position based on scroll
-            const scrollProgress = Math.min(scrollY / (docHeight * 0.5), 1);
-            const currentX = startX + (scrollProgress * (endX - startX));
-            const currentY = startY + (scrollProgress * (endY - startY));
-            
-            airplane.style.left = `${currentX}px`;
-            airplane.style.top = `${currentY}%`;
-            airplane.style.transform = `rotate(${12 + scrollProgress * 8}deg)`;
-        }
-
-        ticking = false;
-    }
-
-    function requestParallaxUpdate() {
-        if (!ticking) {
-            window.requestAnimationFrame(updateParallax);
-            ticking = true;
-        }
-    }
-
-    // ============================================
-    // Rain Animation
+    // Rain Animation - Create Drops
     // ============================================
     function createRainDrops() {
         if (!rain) return;
         
-        const dropCount = 60;
+        const dropCount = 80;
         
         for (let i = 0; i < dropCount; i++) {
             const drop = document.createElement('div');
@@ -114,8 +76,8 @@
             
             // Random positioning and timing
             const left = Math.random() * 100;
-            const delay = Math.random() * 2;
-            const duration = 0.8 + Math.random() * 0.6;
+            const delay = Math.random() * 3;
+            const duration = 0.6 + Math.random() * 0.5;
             const opacity = 0.3 + Math.random() * 0.4;
             
             drop.style.left = `${left}%`;
@@ -128,12 +90,32 @@
     }
 
     // ============================================
-    // Lightning Effect - Enhanced
+    // Lightning Effect - Enhanced with Bolts
     // ============================================
     function triggerLightning() {
         if (!lightning) return;
         
+        // Flash overlay
         lightning.classList.add('lightning--flash');
+        
+        // Randomly show lightning bolts
+        if (Math.random() > 0.5 && bolt1) {
+            setTimeout(() => {
+                bolt1.classList.add('lightning-bolt--flash');
+                setTimeout(() => {
+                    bolt1.classList.remove('lightning-bolt--flash');
+                }, 300);
+            }, 50);
+        }
+        
+        if (Math.random() > 0.6 && bolt2) {
+            setTimeout(() => {
+                bolt2.classList.add('lightning-bolt--flash');
+                setTimeout(() => {
+                    bolt2.classList.remove('lightning-bolt--flash');
+                }, 300);
+            }, 150);
+        }
         
         setTimeout(() => {
             lightning.classList.remove('lightning--flash');
@@ -141,8 +123,8 @@
     }
 
     function scheduleLightning() {
-        // Random interval between 5-12 seconds
-        const interval = Math.random() * 7000 + 5000;
+        // Random interval between 4-10 seconds
+        const interval = Math.random() * 6000 + 4000;
         
         setTimeout(() => {
             triggerLightning();
@@ -167,17 +149,17 @@
         const totalSlides = cards.length;
 
         function goToSlide(index) {
-            currentSlide = index;
+            currentSlide = Math.max(0, Math.min(index, totalSlides - 1));
             
             // Update dots
             dots.forEach((dot, i) => {
-                dot.classList.toggle('reviews__dot--active', i === index);
+                dot.classList.toggle('reviews__dot--active', i === currentSlide);
             });
 
             // Scroll to card
-            const cardWidth = cards[0].offsetWidth + 32; // Including gap
+            const cardWidth = cards[0].offsetWidth + 32;
             reviewsTrack.scrollTo({
-                left: cardWidth * index,
+                left: cardWidth * currentSlide,
                 behavior: 'smooth'
             });
         }
@@ -316,7 +298,6 @@
             behavior: 'smooth'
         });
 
-        // Close mobile menu if open
         closeMobileMenu();
     }
 
@@ -327,7 +308,6 @@
         const link = e.target.closest('a[href^="tel:"]');
         if (!link) return;
 
-        // Add click feedback animation
         link.style.transform = 'scale(0.95)';
         setTimeout(() => {
             link.style.transform = '';
@@ -352,9 +332,6 @@
     // Initialize
     // ============================================
     function init() {
-        // Initial parallax position
-        updateParallax();
-
         // Create rain drops
         createRainDrops();
 
@@ -362,7 +339,6 @@
         window.addEventListener('scroll', throttle(() => {
             handleNavbarScroll();
             handleFloatingButton();
-            requestParallaxUpdate();
         }, 16), { passive: true });
 
         // Navbar toggle
@@ -390,10 +366,8 @@
         // Carousel
         initCarousel();
 
-        // Initial navbar state
+        // Initial states
         handleNavbarScroll();
-
-        // Initial floating button state
         handleFloatingButton();
     }
 
@@ -403,10 +377,5 @@
     } else {
         init();
     }
-
-    // Handle resize
-    window.addEventListener('resize', throttle(() => {
-        updateParallax();
-    }, 100));
 
 })();
